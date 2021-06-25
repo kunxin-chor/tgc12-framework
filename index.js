@@ -23,10 +23,13 @@ app.use(
   })
 );
 
+// load in our route files
+const landingRoutes = require('./routes/landing'); 
+
 async function main() {
-   app.get('/', (req,res)=>{
-       res.send("It's alive");
-   })
+ 
+  app.use('/', landingRoutes);
+
 }
 
 main();
