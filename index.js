@@ -25,10 +25,12 @@ app.use(
 
 // load in our route files
 const landingRoutes = require('./routes/landing'); 
+const productRoutes = require('./routes/products');
 
 async function main() {
  
   app.use('/', landingRoutes);
+  app.use('/products', productRoutes)
 
 }
 
