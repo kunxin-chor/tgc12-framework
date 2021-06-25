@@ -17,11 +17,13 @@
   },
   "homepage": "https://github.com/kunxin-chor/tgc12-framework#readme",
   "dependencies": {
+    "bookshelf": "^1.2.0",
     "db-migrate": "^0.11.12",
     "db-migrate-mysql": "^2.1.2",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "hbs": "^4.1.2",
+    "knex": "^0.95.6",
     "wax-on": "^1.2.2"
   }
 }

@@ -39,7 +39,7 @@ exports.up = function (db) {
       'notNull':true
     },
     'description':{
-      'type': 'int',
+      'type': 'text',
       'notNull': true
     }
   })
