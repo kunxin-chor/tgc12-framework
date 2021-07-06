@@ -1,4 +1,5 @@
-const forms = require('forms')
+const forms = require('forms');
+const { Product } = require('../models');
 
 // create some shortcuts
 const fields = forms.fields;
@@ -52,6 +53,7 @@ const createProductForm = () => {
         })
     })
 }
+
 
 module.exports = {
     createProductForm,

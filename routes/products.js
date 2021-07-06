@@ -105,7 +105,32 @@ router.post('/:product_id/update', async(req,res)=>{
             })
         }
     })
-
 })
+
+router.get('/:product_id/delete', async(req,res)=>{
+    const product = await Product.where({
+        'id': req.params.product_id
+    }).fetch({
+        require: true
+    })
+
+    res.render('products/delete', {
+        'product': product.toJSON()
+    })
+})
+
+router.post('/:product_id/delete', async(req,res)=>{
+    // fetch the product that we want to delete
+    const product = await Product.where({
+        'id': req.params.product_id
+    }).fetch({
+        require: true
+    })
+
+    // use the Bookshelf ORM to delete the product
+    await product.destroy();
+    res.redirect('/products')
+})
+
 
 module.exports = router;
