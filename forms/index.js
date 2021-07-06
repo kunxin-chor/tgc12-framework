@@ -4,6 +4,7 @@ const { Product } = require('../models');
 // create some shortcuts
 const fields = forms.fields;
 const validators = forms.validators;
+const widgets = forms.widgets;
 
 var bootstrapField = function (name, object) {
     if (!Array.isArray(object.widget.classes)) { object.widget.classes = []; }
@@ -25,7 +26,7 @@ var bootstrapField = function (name, object) {
     return '<div class="form-group">' + label + widget + error + '</div>';
 };
 
-const createProductForm = () => {
+const createProductForm = (categories) => {
     return forms.create({
         // <label class="form-label">Name</label>
         // <input type="text" name="name" />
@@ -50,6 +51,16 @@ const createProductForm = () => {
             cssClasses: {
                 label: ['form-label']
             }
+        }),
+        'category_id': fields.string({
+            'label': 'Category',
+            'required': true,
+            'errorAfterField': true,
+            'cssClasses': {
+                'label': ['form-label']
+            },
+            'widget': widgets.select(),
+            'choices': categories
         })
     })
 }
