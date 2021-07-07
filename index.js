@@ -46,11 +46,18 @@ app.use(session({
 // setup flash
 app.use(flash());
 
-// middleware
+// flash middleware
 app.use(function(req,res,next){
   // res.locals refers to an object which keys are available in HBS files
   res.locals.success_messages = req.flash('success_messages');
   res.locals.error_messages = req.flash('error_messages');
+  next();
+})
+
+// put the user data from the session into res.locals (any variables
+// inside res.locals is available to the HBS file)
+app.use(function(req,res,next){
+  res.locals.user = req.session.user;
   next();
 })
 

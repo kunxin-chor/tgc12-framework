@@ -4,6 +4,7 @@ const {
     bootstrapField,
     createProductForm
 } = require('../forms')
+const { checkIfAuthenticated } = require('../middlewares')
 
 // #1 - import in our model
 // if we require a directory (aka folder), nodejs will automatically
@@ -22,7 +23,7 @@ router.get('/', async (req, res) => {
     })
 })
 
-router.get('/create', async (req, res) => {
+router.get('/create', checkIfAuthenticated, async (req, res) => {
 
     // get all the categories from the database
     // const choices = await Category.fetchAll().map((category)=>{
@@ -44,7 +45,7 @@ router.get('/create', async (req, res) => {
     })
 })
 
-router.post('/create', async (req, res) => {
+router.post('/create', checkIfAuthenticated, async (req, res) => {
     const choices = await Category.fetchAll().map((category)=>{
         return [ category.get('id'), category.get('name')]
     });

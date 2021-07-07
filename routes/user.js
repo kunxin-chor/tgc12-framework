@@ -5,6 +5,10 @@ const router = express.Router();
 const crypto = require('crypto')
 
 const {
+    checkIfAuthenticated
+} = require('../middlewares')
+
+const {
     createRegistrationForm,
     bootstrapField,
     createLoginForm
@@ -90,16 +94,12 @@ router.post('/login', async (req, res) => {
     })
 })
 
-router.get('/profile', async (req, res) => {
+router.get('/profile', checkIfAuthenticated, async (req, res) => {
     const user = req.session.user;
-    if (user) {
-        res.render('users/profile', {
-            'user': user
-        })
-    } else {
-        req.flash("error_messages", "You are not authorized to view this page");
-        res.redirect('/users/login');
-    }
+    res.render('users/profile', {
+        'user': user
+    })
+
 })
 
 router.get('/logout', (req, res) => {
