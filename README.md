@@ -16,3 +16,14 @@ FLUSH PRIVILEGES;
 create database organic;
 
 ```
+
+Run the migration once:
+```
+.\db-migrate.sh up
+```
+
+If the `db-migrate` is not working, must add the permission with:
+
+```
+chmod +x .\db-migrate.sh
+```
