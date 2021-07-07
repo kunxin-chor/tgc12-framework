@@ -15,7 +15,7 @@ const {
 router.get('/', async (req, res) => {
     // same as: select * from products
     let products = await Product.collection().fetch({
-        'withRelated':['category']
+        'withRelated':['category', 'tags']
     });
     res.render('products/index', {
         'products': products.toJSON()
@@ -49,7 +49,9 @@ router.post('/create', async (req, res) => {
         return [ category.get('id'), category.get('name')]
     });
 
-    const productForm = createProductForm(choices);
+    const allTags = await Tag.fetchAll().map( tag => [tag.get('id'), tag.get('name') ]);
+
+    const productForm = createProductForm(choices, allTags);
     productForm.handle(req, {
         'success': async (form) => {
             // create a new instance of the Product model
@@ -69,10 +71,10 @@ router.post('/create', async (req, res) => {
                 // associate product with the tags
                 await product.tags().attach(selectedTags);
             }
+            req.flash("success_messages", `New product ${product.get('name')} has been created successfully!`)
             res.redirect('/products');
         },
         'error': async (form) => {
-            // re-render the form if there is an error
             res.render('products/create', {
                 'form': form.toHTML(bootstrapField)
             })
