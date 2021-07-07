@@ -3,6 +3,7 @@
 {{#block 'content'}}
 <h1>Sign Up for new account</h1>
 <form method="POST">
+    <input type="hidden" value="{{csrfToken}}" name="_csrf"/>
     {{{form}}}
     <input type="submit" class="btn btn-primary my-3" value="Register"/>
 </form>

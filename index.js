@@ -9,6 +9,9 @@ const flash = require('connect-flash')
 // session file store
 const FileStore = require('session-file-store')(session);
 
+// include in csurf
+const csrf = require('csurf')
+
 
 // create an instance of express app
 let app = express();
@@ -58,6 +61,13 @@ app.use(function(req,res,next){
 // inside res.locals is available to the HBS file)
 app.use(function(req,res,next){
   res.locals.user = req.session.user;
+  next();
+})
+
+app.use(csrf());
+
+app.use(function(req,res,next){
+  res.locals.csrfToken = req.csrfToken()
   next();
 })
 
