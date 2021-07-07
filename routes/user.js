@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+// include in cryptography library
+const crypto = require('crypto')
+
 const {
     createRegistrationForm,
     bootstrapField,
@@ -10,6 +13,12 @@ const {
 const {
     User
 } = require('../models');
+
+const getHashedPassword = (password) => {
+    const sha256 = crypto.createHash('sha256');
+    const hash = sha256.update(password).digest('base64');
+    return hash;
+}
 
 router.get('/register', (req, res) => {
     const registrationForm = createRegistrationForm();
@@ -22,19 +31,11 @@ router.post('/register', async (req, res) => {
     const registrationForm = createRegistrationForm();
     registrationForm.handle(req, {
         'success': async (form) => {
-            // const user = new User({
-            //     'username': form.data.username,
-            //     'password': form.data.password,
-            //     'email': form.data.email
-            // })
-
-            // alternatively, extract out confirm_password into its own
-            // variable, and the remaining keys in form.data to the userData object
-            const {
-                confirm_password,
-                ...userData
-            } = form.data;
-            const user = new User(userData);
+            const user = new User({
+                'username': form.data.username,
+                'password': getHashedPassword(form.data.password),
+                'email': form.data.email
+            })
             await user.save();
             req.flash("success_messages", "You have signed up successfully!");
             res.redirect('/login')
@@ -65,7 +66,7 @@ router.post('/login', async (req, res) => {
 
             // 2. we check if the password given by the form matches the email in the user row
             if (user) {
-                if (user.get('password') == form.data.password) {
+                if (user.get('password') == getHashedPassword(form.data.password)) {
                     // 3. if the password matches, then it is a valid login, then save the user id
                     // to the session
                     req.session.user = {
@@ -89,19 +90,19 @@ router.post('/login', async (req, res) => {
     })
 })
 
-router.get('/profile', async(req,res)=>{
+router.get('/profile', async (req, res) => {
     const user = req.session.user;
     if (user) {
-        res.render('users/profile',{
+        res.render('users/profile', {
             'user': user
         })
     } else {
         req.flash("error_messages", "You are not authorized to view this page");
         res.redirect('/users/login');
     }
-}) 
+})
 
-router.get('/logout', (req,res)=>{
+router.get('/logout', (req, res) => {
     req.session.user = null; // empty out the details of the logged in user
     req.flash("success_messages", "Goodbye");
     res.redirect('/users/login')
