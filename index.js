@@ -66,10 +66,22 @@ app.use(function(req,res,next){
 
 app.use(csrf());
 
+app.use(function (err, req, res, next) {
+  if (err && err.code == "EBADCSRFTOKEN") {
+      req.flash('error_messages', 'The form has expired. Please try again');
+      res.redirect('back');
+  } else {
+      console.log("going next");
+      next()
+  }
+});
+
 app.use(function(req,res,next){
   res.locals.csrfToken = req.csrfToken()
   next();
 })
+
+
 
 async function main() {
  
