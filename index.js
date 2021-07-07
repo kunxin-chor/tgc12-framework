@@ -6,6 +6,9 @@ require("dotenv").config();
 const session = require('express-session')
 const flash = require('connect-flash')
 
+// session file store
+const FileStore = require('session-file-store')(session);
+
 // create an instance of express app
 let app = express();
 
@@ -29,9 +32,11 @@ app.use(
 // load in our route files
 const landingRoutes = require('./routes/landing'); 
 const productRoutes = require('./routes/products');
+const userRoutes = require('./routes/user');
 
 // set up sessions
 app.use(session({
+  'store': new FileStore(),
   'secret': 'keyboard cat',
   'resave': false,
   saveUninitialized: true
@@ -52,6 +57,7 @@ async function main() {
  
   app.use('/', landingRoutes);
   app.use('/products', productRoutes)
+  app.use('/users', userRoutes)
 
 }
 
