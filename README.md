@@ -25,7 +25,7 @@ Run the migration once:
 If the `db-migrate.sh` is not working, you must add the execute permission to it:
 
 ```
-chmod +x .\db-migrate.sh
+chmod +x ./db-migrate.sh
 ```
 # Pushing to your own Github repoistory
 If you wish to push changes to your own Github repoistory, follow
