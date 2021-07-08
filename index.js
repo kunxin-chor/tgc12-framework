@@ -42,7 +42,7 @@ const cloudinaryRoutes = require('./routes/cloudinary');
 // set up sessions
 app.use(session({
   'store': new FileStore(),
-  'secret': 'keyboard cat',
+  'secret': process.env.SESSION_SECRET,
   'resave': false,
   saveUninitialized: true
 }))
