@@ -19,7 +19,7 @@ create database organic;
 
 Run the migration once:
 ```
-.\db-migrate.sh up
+./db-migrate.sh up
 ```
 
 If the `db-migrate.sh` is not working, you must add the execute permission to it:
