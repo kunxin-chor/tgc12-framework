@@ -2,25 +2,102 @@ const express = require('express')
 const router = express.Router();
 const {
     bootstrapField,
-    createProductForm
+    createProductForm,
+    createSearchForm
 } = require('../forms')
-const { checkIfAuthenticated } = require('../middlewares')
+const {
+    checkIfAuthenticated
+} = require('../middlewares')
 
 // #1 - import in our model
 // if we require a directory (aka folder), nodejs will automatically
 // refer to the index.js in that directory
 const {
-    Product, Category, Tag
+    Product,
+    Category,
+    Tag
 } = require('../models');
 
 router.get('/', async (req, res) => {
-    // same as: select * from products
-    let products = await Product.collection().fetch({
-        'withRelated':['category', 'tags']
+
+    const categories = await Category.fetchAll().map((category) => {
+        return [category.get('id'), category.get('name')]
     });
-    res.render('products/index', {
-        'products': products.toJSON()
+    categories.unshift([0, "Any categories"])
+
+    const allTags = await Tag.fetchAll().map(tag => [tag.get('id'), tag.get('name')]);
+
+    const searchForm = createSearchForm(categories, allTags);
+
+    // mastery query:
+    let q = Product.collection();
+
+    searchForm.handle(req, {
+        'empty': async (form) => {
+            // same as: select * from products
+            let products = await q.fetch({
+                'withRelated': ['category', 'tags']
+            });
+
+            res.render('products/index', {
+                'products': products.toJSON(),
+                'form': form.toHTML(bootstrapField)
+            })
+        },
+        'error': async(form) => {
+             // same as: select * from products
+             let products = await q.fetch({
+                'withRelated': ['category', 'tags']
+            });
+
+            res.render('products/index', {
+                'products': products.toJSON(),
+                'form': form.toHTML(bootstrapField)
+            })
+        },
+        'success': async(form) => {
+            console.log(form.data);
+            if (form.data.name) {
+                q = q.where('name', 'like', '%' + form.data.name + '%')
+            }
+
+            // only if the form has min_cost filled in
+            if (form.data.min_cost) {
+                q = q.where('cost', '>=', form.data.min_cost);
+            }
+
+            // only if the form has max_cost filled in
+            if (form.data.max_cost) {
+                q = q.where('cost', '<=', form.data.max_cost);
+            }
+
+            if (form.data.category_id && form.data.category_id != "0") {
+                q = q.where('category_id', '=', form.data.category_id);
+            }
+
+            if (form.data.tags) {
+                console.log("Got executed");
+                console.log(form.data.tags.split(','))
+                // select * from products join products_tags on products.id = products_tags.product_id
+                q = q.query('join', 'products_tags', 'products.id', 'product_id')
+                    .where('tag_id', 'in', form.data.tags.split(','))
+            }
+
+            // For debugging:
+            // console.log(q.query().toSQL());
+
+            let products = await q.fetch({
+                withRelated:['category']
+            });
+
+            res.render('products/index', {
+                'products': products.toJSON(),
+                'form': form.toHTML(bootstrapField)
+            })
+        }
     })
+
+
 })
 
 router.get('/create', checkIfAuthenticated, async (req, res) => {
@@ -33,11 +110,11 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
     const allCateogries = await Category.fetchAll();
     const choices = [];
     for (let category of allCateogries) {
-        choices.push([ category.get('id'), category.get('name')])
+        choices.push([category.get('id'), category.get('name')])
     }
 
     // load in all the possible tags
-    const allTags = await Tag.fetchAll().map( tag => [tag.get('id'), tag.get('name') ]);
+    const allTags = await Tag.fetchAll().map(tag => [tag.get('id'), tag.get('name')]);
     const productForm = createProductForm(choices, allTags);
 
     res.render('products/create', {
@@ -49,11 +126,11 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
 })
 
 router.post('/create', checkIfAuthenticated, async (req, res) => {
-    const choices = await Category.fetchAll().map((category)=>{
-        return [ category.get('id'), category.get('name')]
+    const choices = await Category.fetchAll().map((category) => {
+        return [category.get('id'), category.get('name')]
     });
 
-    const allTags = await Tag.fetchAll().map( tag => [tag.get('id'), tag.get('name') ]);
+    const allTags = await Tag.fetchAll().map(tag => [tag.get('id'), tag.get('name')]);
 
     const productForm = createProductForm(choices, allTags);
     productForm.handle(req, {
@@ -65,7 +142,10 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
             // it means we are creating a new row in the products table
             // form.data will contain the user's input via the text boxes
             console.log(form.data);
-            let {tags, ...productData} = form.data;
+            let {
+                tags,
+                ...productData
+            } = form.data;
             let product = new Product(productData);
             await product.save();
 
@@ -88,12 +168,12 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 
 // display the form that displays a product for editing
 router.get('/:product_id/update', async (req, res) => {
-    const choices = await Category.fetchAll().map((category)=>{
-        return [ category.get('id'), category.get('name')]
+    const choices = await Category.fetchAll().map((category) => {
+        return [category.get('id'), category.get('name')]
     });
-   
+
     // retrieve all the tags
-    const allTags = await Tag.fetchAll().map( tag => [tag.get('id'), tag.get('name') ]);
+    const allTags = await Tag.fetchAll().map(tag => [tag.get('id'), tag.get('name')]);
 
     // retrieve the product from the database
     const productId = req.params.product_id;
@@ -140,15 +220,15 @@ router.get('/:product_id/update', async (req, res) => {
 
 })
 
-router.post('/:product_id/update', async(req,res)=>{
+router.post('/:product_id/update', async (req, res) => {
 
     // retrieve all the tags
-    const allTags = await Tag.fetchAll().map( tag => [tag.get('id'), tag.get('name') ]);
+    const allTags = await Tag.fetchAll().map(tag => [tag.get('id'), tag.get('name')]);
 
-    const choices = await Category.fetchAll().map((category)=>{
-        return [ category.get('id'), category.get('name')]
+    const choices = await Category.fetchAll().map((category) => {
+        return [category.get('id'), category.get('name')]
     });
-   
+
 
     // fetch the product that we want to update
     const product = await Product.where({
@@ -156,13 +236,16 @@ router.post('/:product_id/update', async(req,res)=>{
     }).fetch({
         'require': true,
         'withRelated': ['category', 'tags']
-    }) 
+    })
 
     // process the form
     const productForm = createProductForm(choices, allTags);
     productForm.handle(req, {
-        'success': async(form)=>{
-            let {tags, ...productData} = form.data;
+        'success': async (form) => {
+            let {
+                tags,
+                ...productData
+            } = form.data;
             product.set(productData);
             await product.save();
 
@@ -194,7 +277,7 @@ router.post('/:product_id/update', async(req,res)=>{
 
             res.redirect('/products');
         },
-        'error': async (form)=>{
+        'error': async (form) => {
             // re-render the form if there are errors
             // to display the error messages
             res.render('products/update', {
@@ -205,7 +288,7 @@ router.post('/:product_id/update', async(req,res)=>{
     })
 })
 
-router.get('/:product_id/delete', async(req,res)=>{
+router.get('/:product_id/delete', async (req, res) => {
     const product = await Product.where({
         'id': req.params.product_id
     }).fetch({
@@ -217,7 +300,7 @@ router.get('/:product_id/delete', async(req,res)=>{
     })
 })
 
-router.post('/:product_id/delete', async(req,res)=>{
+router.post('/:product_id/delete', async (req, res) => {
     // fetch the product that we want to delete
     const product = await Product.where({
         'id': req.params.product_id
