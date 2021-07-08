@@ -15,24 +15,14 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = function(db) {
-  return db.addColumn('products', 'category_id', {
-    'type': 'int',
-    'unsigned': true,
-    'notNull': true,
-    'foreignKey': {
-      'name': 'product_category_fk',
-      'table': 'categories',
-      'mapping': 'id',
-      'rules': {
-        'onDelete':'cascade',
-        'onUpdate':'restrict'
-      }
-    }
+  return db.addColumn('products', 'image_url', {
+    'type':'string',
+    'length': 255
   })
 };
 
 exports.down = function(db) {
-  return db.dropColumn('products', 'category_id')
+  return db.removeColumn('products', 'image_url');
 };
 
 exports._meta = {

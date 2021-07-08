@@ -11,6 +11,7 @@
             <th>Category</th>
             <th>Cost</th>
             <th>Description</th>
+            <th>Image</th>
             <th></th>
         </tr>
     </thead>
@@ -32,6 +33,12 @@
         <td>
             {{this.description}}
         </td>
+        <td>
+            {{#if this.image_url}}
+            <img src="{{this.image_url}}" class="img-fluid"/>
+            {{/if}}
+        </td>
+
         <td>
             <a href='/products/{{this.id}}/update' class="btn btn-primary btn-sm">Edit</a>
             <a href='/products/{{this.id}}/delete' class="btn btn-danger btn-sm">Delete</a>

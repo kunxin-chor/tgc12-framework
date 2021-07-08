@@ -41,7 +41,10 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
     const productForm = createProductForm(choices, allTags);
 
     res.render('products/create', {
-        'form': productForm.toHTML(bootstrapField)
+        'form': productForm.toHTML(bootstrapField),
+        'cloudinaryName': process.env.CLOUDINARY_NAME,
+        'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+        'cloudinaryPreset': process.env.CLOUDINARY_UPLOAD_PRESET
     })
 })
 
@@ -110,6 +113,7 @@ router.get('/:product_id/update', async (req, res) => {
     productForm.fields.cost.value = product.get('cost');
     productForm.fields.description.value = product.get('description');
     productForm.fields.category_id.value = product.get('category_id');
+    productForm.fields.image_url.value = product.get('image_url')
 
     // pluck will retrieve one element from each object and put it into an array
     let selectedTags = await product.related('tags').pluck('id');
@@ -128,7 +132,10 @@ router.get('/:product_id/update', async (req, res) => {
 
     res.render('products/update', {
         'form': productForm.toHTML(bootstrapField),
-        'product': product.toJSON()
+        'product': product.toJSON(),
+        'cloudinaryName': process.env.CLOUDINARY_NAME,
+        'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+        'cloudinaryPreset': process.env.CLOUDINARY_UPLOAD_PRESET
     })
 
 })

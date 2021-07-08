@@ -5,8 +5,64 @@
 <form method="POST">
     <input type="hidden" value="{{csrfToken}}" name="_csrf"/>
     {{{form}}} 
+    <div>
+        <a href="#" class="btn btn-primary my-3" id="upload_widget">Upload Image</a>
+        <img src="" style="display:none" id="uploaded_image"/>
+    </div>
+
     <input type="submit" value="Add Product" class="btn btn-primary my-3"/>
 </form>
+{{/block}}
+
+{{#block 'js'}}
+<!-- axios -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+<!-- initialise cloudinary -->
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script> 
+
+<!-- get the signature -->
+<script>
+    // must have the following arugments
+    // (this is decided by Cloudinary)
+    async function generateSignature(callback, params_to_sign) {
+        let response = await axios.get('/cloudinary/sign', {
+            'params': {
+                params_to_sign
+            }
+        })
+        callback(response.data)
+    }
+
+    // create the upload widget
+    const myWidget = cloudinary.createUploadWidget({
+        'cloudName': '{{cloudinaryName}}',
+        'apiKey': '{{cloudinaryApiKey}}',
+        'uploadPreset':'{{cloudinaryPreset}}',
+        'uploadSignature': generateSignature,
+        'cropping': true
+    }, (error, result)=>{
+        if (!error && result && result.event == 'success') {
+            console.log(result);
+
+            document.querySelector('#id_image_url').value = result.info.url;
+
+            // hide the upload button
+            document.querySelector('#upload_widget').style.display="none";
+
+            // display the image
+            document.querySelector('#uploaded_image').src = result.info.url;
+            document.querySelector('#uploaded_image').style.display = "inline";
+        }
+    })
+
+    // add event listener to open up the widget
+    document.getElementById('upload_widget').addEventListener('click', function(){
+        myWidget.open();
+    }, false);
+</script>
+
+
 {{/block}}
 
 {{/extends}}
