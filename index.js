@@ -38,6 +38,7 @@ const landingRoutes = require('./routes/landing');
 const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/user');
 const cloudinaryRoutes = require('./routes/cloudinary');
+const shoppingCartRoutes = require('./routes/shoppingCart')
 
 // set up sessions
 app.use(session({
@@ -90,6 +91,7 @@ async function main() {
   app.use('/products', productRoutes)
   app.use('/users', userRoutes)
   app.use('/cloudinary', cloudinaryRoutes)
+  app.use('/shoppingCart', shoppingCartRoutes)
 
 }
 
