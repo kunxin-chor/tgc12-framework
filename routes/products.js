@@ -87,7 +87,7 @@ router.get('/', async (req, res) => {
             // console.log(q.query().toSQL());
 
             let products = await q.fetch({
-                withRelated:['category']
+                withRelated:['category', 'tags']
             });
 
             res.render('products/index', {
