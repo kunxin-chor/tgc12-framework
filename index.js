@@ -39,11 +39,12 @@ const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/user');
 const cloudinaryRoutes = require('./routes/cloudinary');
 const shoppingCartRoutes = require('./routes/shoppingCart')
+const checkoutRoutes = require('./routes/checkout')
 
 // set up sessions
 app.use(session({
   'store': new FileStore(),
-  'secret': process.env.SESSION_SECRET_KEY,
+  'secret': process.env.SESSION_SECRET,
   'resave': false,
   saveUninitialized: true
 }))
@@ -92,6 +93,7 @@ async function main() {
   app.use('/users', userRoutes)
   app.use('/cloudinary', cloudinaryRoutes)
   app.use('/shoppingCart', shoppingCartRoutes)
+  app.use('/checkout', checkoutRoutes)
 
 }
 
