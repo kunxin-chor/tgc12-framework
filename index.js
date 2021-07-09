@@ -38,11 +38,12 @@ const landingRoutes = require('./routes/landing');
 const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/user');
 const cloudinaryRoutes = require('./routes/cloudinary');
+const shoppingCartRoutes = require('./routes/shoppingCart')
 
 // set up sessions
 app.use(session({
   'store': new FileStore(),
-  'secret': process.env.SESSION_SECRET,
+  'secret': process.env.SESSION_SECRET_KEY,
   'resave': false,
   saveUninitialized: true
 }))
@@ -67,15 +68,15 @@ app.use(function(req,res,next){
 
 app.use(csrf());
 
-app.use(function (err, req, res, next) {
-  if (err && err.code == "EBADCSRFTOKEN") {
-      req.flash('error_messages', 'The form has expired. Please try again');
-      res.redirect('back');
-  } else {
-      console.log("going next");
-      next()
-  }
-});
+// app.use(function (err, req, res, next) {
+//   if (err && err.code == "EBADCSRFTOKEN") {
+//       req.flash('error_messages', 'The form has expired. Please try again');
+//       res.redirect('back');
+//   } else {
+//       console.log("going next");
+//       next()
+//   }
+// });
 
 app.use(function(req,res,next){
   res.locals.csrfToken = req.csrfToken()
@@ -90,6 +91,7 @@ async function main() {
   app.use('/products', productRoutes)
   app.use('/users', userRoutes)
   app.use('/cloudinary', cloudinaryRoutes)
+  app.use('/shoppingCart', shoppingCartRoutes)
 
 }
 
