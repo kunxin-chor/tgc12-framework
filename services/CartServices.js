@@ -39,7 +39,18 @@ class CartServices {
         }
 
         return false;
-    
+    }
+
+    async updateQuantity(product_id, quantity) {
+        let cartItem = await getCartItemByUserAndProduct(this.user_id, product_id);
+
+        if (cartItem) {
+            cartItem.set('quantity', quantity);
+            await cartItem.save()
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

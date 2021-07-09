@@ -28,7 +28,7 @@ router.get('/', checkIfAuthenticated, async (req,res)=>{
     const cartServices = new CartServices(user_id);
     let cartItems = await cartServices.getCart();
     res.render('shoppingCart/index',{
-        'cartItems': cartItems.toJSON()
+        'cartItems': cartItems.toJSON(),
     })
 })
 
@@ -45,5 +45,21 @@ router.get('/:product_id/remove', async(req,res)=>{
    
     res.redirect('/shoppingCart')
 })
+
+router.post('/:product_id/quantity/update', async(req,res)=>{
+        let user_id = req.session.user.id;
+        let product_id = req.params.product_id;
+        let quantity = req.body.quantity;
+        const cartServices = new CartServices(user_id);
+        let status = await cartServices.updateQuantity(product_id, quantity );
+
+        if (status) {
+            req.flash('success_messages', "Update quantity successfully");
+        } else {
+            req.flash('error_messages', "Failed to update quantity");
+        }
+
+        res.redirect('/shoppingCart');
+});
 
 module.exports = router;
