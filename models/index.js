@@ -34,7 +34,11 @@ const User = bookshelf.model('User',{
 
 const CartItem = bookshelf.model('CartItem', {
     'tableName': 'cart_items',
+<<<<<<< HEAD
     products() {
+=======
+    product() {
+>>>>>>> origin/11b-shopping-cart-wip
         return this.belongsTo('Product')
     }
 })

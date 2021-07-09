@@ -43,7 +43,7 @@ const shoppingCartRoutes = require('./routes/shoppingCart')
 // set up sessions
 app.use(session({
   'store': new FileStore(),
-  'secret': process.env.SESSION_SECRET,
+  'secret': process.env.SESSION_SECRET_KEY,
   'resave': false,
   saveUninitialized: true
 }))
@@ -68,15 +68,15 @@ app.use(function(req,res,next){
 
 app.use(csrf());
 
-app.use(function (err, req, res, next) {
-  if (err && err.code == "EBADCSRFTOKEN") {
-      req.flash('error_messages', 'The form has expired. Please try again');
-      res.redirect('back');
-  } else {
-      console.log("going next");
-      next()
-  }
-});
+// app.use(function (err, req, res, next) {
+//   if (err && err.code == "EBADCSRFTOKEN") {
+//       req.flash('error_messages', 'The form has expired. Please try again');
+//       res.redirect('back');
+//   } else {
+//       console.log("going next");
+//       next()
+//   }
+// });
 
 app.use(function(req,res,next){
   res.locals.csrfToken = req.csrfToken()

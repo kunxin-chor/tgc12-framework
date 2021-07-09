@@ -1,22 +1,34 @@
 const {CartItem} = require('../models');
 
-const getCartItems = async(userId) => {
-    return await CartItem.collection().where({
-        'user_id': userId
+const getCartItemByUserAndProduct = async (user_id, product_id) => {
+    let cartItem = await CartItem.where({
+        'user_id': user_id,
+        'product_id': product_id
     }).fetch({
-        'require': false,
-        'withRelated':['product', 'product.category']
-    })
+        'require': false // make sure it's false or else there will be an exception if there is no results
+    });
+    return cartItem;
 }
 
-// check if a product exists in the user's shopping cart
-const getCartItemByUserAndProduct = async (userId, productId) => {
-    return await CartItem.where({
-        'user_id': userId,
-        'product_id': productId
+const getCartItems = async (user_id) => {
+    let cartItems = await CartItem.collection().where({
+        'user_id': user_id
     }).fetch({
-        'require': false
-    })
+        require: false,
+        withRelated:['product', 'product.category']
+    });
+    return cartItems;
 }
 
-module.exports = { getCartItemByUserAndProduct, getCartItems};
+const addCartItem = async (user_id, product_id, quantity) => {
+    let cartItem = new CartItem({
+        'user_id': user_id,
+        'product_id': product_id,
+        'quantity': 1
+    })
+    await cartItem.save();
+}
+
+module.exports = {
+    getCartItemByUserAndProduct, getCartItems, addCartItem
+}
