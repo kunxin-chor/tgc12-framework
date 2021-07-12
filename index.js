@@ -46,7 +46,8 @@ const shoppingCartRoutes = require('./routes/shoppingCart')
 const checkoutRoutes = require('./routes/checkout')
 
 const api = {
-  products: require('./routes/api/products')
+  products: require('./routes/api/products'),
+  users: require('./routes/api/users')
 }
 
 // set up sessions
@@ -119,7 +120,7 @@ async function main() {
 
   // all routes that are part of API must specify to use express.json middleware
   app.use('/api/products', express.json(), api.products);
-  // app.use('/api/users', express.json(), api.users);
+  app.use('/api/users', express.json(), api.users);
 }
 
 main();
