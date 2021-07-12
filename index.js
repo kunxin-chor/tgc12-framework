@@ -3,6 +3,9 @@ const hbs = require("hbs");
 const wax = require("wax-on");
 require("dotenv").config();
 
+// bodyparser for processing webhooks
+const bodyParser = require('body-parser');
+
 const session = require('express-session')
 const flash = require('connect-flash')
 
@@ -10,7 +13,7 @@ const flash = require('connect-flash')
 const FileStore = require('session-file-store')(session);
 
 // include in csurf
-const csrf = require('csurf')
+const csurf = require('csurf')
 
 
 // create an instance of express app
@@ -33,6 +36,7 @@ app.use(
   })
 );
 
+
 // load in our route files
 const landingRoutes = require('./routes/landing'); 
 const productRoutes = require('./routes/products');
@@ -40,6 +44,10 @@ const userRoutes = require('./routes/user');
 const cloudinaryRoutes = require('./routes/cloudinary');
 const shoppingCartRoutes = require('./routes/shoppingCart')
 const checkoutRoutes = require('./routes/checkout')
+
+const api = {
+  products: require('./routes/api/products')
+}
 
 // set up sessions
 app.use(session({
@@ -67,7 +75,16 @@ app.use(function(req,res,next){
   next();
 })
 
-app.use(csrf());
+// note: replaced app.use(csrf()) with the following:
+const csurfInstance = csurf();
+app.use(function(req,res,next){
+  console.log("checking for csrf exclusion")
+  // exclude whatever url we want from CSRF protection
+  if (req.url === "/checkout/process_payment" || req.url.slice(0,5)==="/api/") {
+    return next();
+  }
+  csurfInstance(req,res,next);
+})
 
 // app.use(function (err, req, res, next) {
 //   if (err && err.code == "EBADCSRFTOKEN") {
@@ -80,11 +97,16 @@ app.use(csrf());
 // });
 
 app.use(function(req,res,next){
-  res.locals.csrfToken = req.csrfToken()
+  console.log("attempting to add csrf token")
+  // check if CSRF is enabled for the current route
+  if (req.csrfToken) {
+    // if so, add to the hbs variables
+    console.log("Adding csrf token")
+    res.locals.csrfToken = req.csrfToken()
+  }
+
   next();
 })
-
-
 
 async function main() {
  
@@ -95,6 +117,9 @@ async function main() {
   app.use('/shoppingCart', shoppingCartRoutes)
   app.use('/checkout', checkoutRoutes)
 
+  // all routes that are part of API must specify to use express.json middleware
+  app.use('/api/products', express.json(), api.products);
+  // app.use('/api/users', express.json(), api.users);
 }
 
 main();
