@@ -1,6 +1,7 @@
 const express = require("express");
 const hbs = require("hbs");
 const wax = require("wax-on");
+const cors = require('cors')
 require("dotenv").config();
 
 // bodyparser for processing webhooks
@@ -108,6 +109,8 @@ app.use(function(req,res,next){
 
   next();
 })
+
+app.use(cors())
 
 async function main() {
  
