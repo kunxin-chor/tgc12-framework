@@ -7,7 +7,7 @@ const knex = setupKnex({
         database: process.env.DB_DATABASE,
         host: process.env.DB_HOST,
         'ssl': {
-            'rejectUnauthorized': true
+            'rejectUnauthorized': false
         }
     }
 })
